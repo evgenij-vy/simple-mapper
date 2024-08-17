@@ -1,0 +1,20 @@
+{
+    "name": "evgenij-vy/simple-mapper",
+    "description": "Php object mapper",
+    "type": "library",
+    "license": "GPL",
+    "autoload": {
+        "psr-4": {
+            "Evgenij\\SimpleMapper\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Evgen Yurchenko",
+            "email": "evgenijvy@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    }
+}
