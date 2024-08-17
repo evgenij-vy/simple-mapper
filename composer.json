@@ -2,7 +2,7 @@
     "name": "evgenij-vy/simple-mapper",
     "description": "Php object mapper",
     "type": "library",
-    "license": "GPL",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Evgenij\\SimpleMapper\\": "src/"
