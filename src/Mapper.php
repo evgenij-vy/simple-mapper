@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Evgenij\SimpleMapper;
+namespace EvgenijVY\SimpleMapper;
 
 use ReflectionClass;
 use ReflectionException;
