@@ -11,6 +11,10 @@ use ReflectionObject;
 class Mapper
 {
     /**
+     * @template T
+     * @param object $source
+     * @param class-string<T> $destination
+     * @return T
      * @throws ReflectionException
      */
     public function map(object $source, string $destination): object
