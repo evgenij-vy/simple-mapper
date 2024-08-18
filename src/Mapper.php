@@ -10,6 +10,13 @@ use ReflectionObject;
 
 class Mapper
 {
+    private PropertyProcessor $propertyProcessor;
+
+    public function __construct()
+    {
+        $this->propertyProcessor = new PropertyProcessor();
+    }
+
     /**
      * @template T
      * @param object $source
@@ -24,12 +31,7 @@ class Mapper
         $destinationObject = $destinationReflectionClass->newInstanceWithoutConstructor();
 
         foreach ($destinationReflectionClass->getProperties() as $destinationProperty) {
-            if ($sourceData->hasProperty($destinationProperty->getName())) {
-                $destinationProperty->setValue(
-                    $destinationObject,
-                    $sourceData->getProperty($destinationProperty->getName())->getValue($source),
-                );
-            }
+            $this->propertyProcessor->process($destinationProperty, $sourceData, $source, $destinationObject);
         }
 
         return $destinationObject;
