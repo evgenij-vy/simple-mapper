@@ -21,5 +21,6 @@ class BasicTest extends TestCase
             self::TEST_STRING,
             (new Mapper())->map((new SourceDto())->setName(self::TEST_STRING), DestinationDto::class)->getName()
         );
+        $this->assertTrue(false);
     }
 }
