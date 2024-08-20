@@ -12,7 +12,7 @@ class Mapper
 {
     private PropertyProcessor $propertyProcessor;
 
-    public function __construct()
+    final public function __construct()
     {
         $this->propertyProcessor = new PropertyProcessor();
     }
