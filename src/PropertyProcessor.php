@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper;
 
+use DateTimeInterface;
+use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
+use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use ReflectionObject;
 use ReflectionProperty;
 use ReflectionException;
@@ -23,11 +26,12 @@ class PropertyProcessor
                 $reflectionDestinationProperty,
                 $destinationObject,
                 $this->convertValue(
-                    $this->retrieveSourcePropertyValue(
+                    $this->retrieveSourcePropertyData(
                         $reflectionDestinationProperty,
                         $sourceReflection,
                         $sourceObject
-                    )
+                    ),
+                    $reflectionDestinationProperty
                 )
             );
         } catch (SourcePropertyNotFoundException) {
@@ -38,28 +42,56 @@ class PropertyProcessor
     /**
      * @throws SourcePropertyNotFoundException
      */
-    private function retrieveSourcePropertyValue(
+    private function retrieveSourcePropertyData(
         ReflectionProperty $reflectionDestinationProperty,
         ReflectionObject   $sourceReflection,
         object             $sourceObject,
-    ): mixed
+    ): SourcePropertyDataDto
     {
         try {
-            return $sourceReflection->getProperty($reflectionDestinationProperty->getName())->getValue($sourceObject);
+            $sourceReflectionProperty = $sourceReflection->getProperty($reflectionDestinationProperty->getName());
+
+            return new SourcePropertyDataDto(
+                $sourceReflectionProperty->getValue($sourceObject),
+                $sourceReflectionProperty
+            );
         } catch (ReflectionException) {
             throw new SourcePropertyNotFoundException();
         }
     }
 
-    private function convertValue(mixed $value): mixed
+    private function convertValue(
+        SourcePropertyDataDto $sourcePropertyDataDto,
+        ReflectionProperty $reflectionDestinationProperty
+    ): mixed
     {
-        return $value;
+        $destinationType = $reflectionDestinationProperty->getType();
+        $sourceType = $sourcePropertyDataDto->getProperty()->getType();
+
+        if ($destinationType->getName() !== $sourceType->getName()) {
+            if (is_a($destinationType->getName(), DateTimeInterface::class, true)) {
+                $destinationTypeName = $destinationType->getName();
+                return match ($sourceType->getName()) {
+                    'string' => new $destinationTypeName($sourcePropertyDataDto->getValue()),
+                    'int' => (new $destinationTypeName())->setTimestamp($sourcePropertyDataDto->getValue()),
+                    default => throw new UnsupportedConversionTypeException()
+                };
+            }
+            if (is_a($sourceType->getName(), DateTimeInterface::class, true)) {
+                return match ($destinationType->getName()) {
+                    'string' => $sourcePropertyDataDto->getValue()->format(DateTimeInterface::ATOM),
+                    'int' => $sourcePropertyDataDto->getValue()->getTimestamp(),
+                };
+            }
+        }
+
+        return $sourcePropertyDataDto->getValue();
     }
 
     private function setValueToDestinationObject(
         ReflectionProperty $reflectionDestinationProperty,
         object             $destinationObject,
-        mixed $value
+        mixed              $value
     ): void
     {
         $reflectionDestinationProperty->setValue($destinationObject, $value);

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper\UnitTest\Dto;
 
-class DestinationDto
+class Source1
 {
     private string $name;
 
-    public function getName(): string
+    public function setName(string $name): self
     {
-        return $this->name;
+        $this->name = $name;
+
+        return $this;
     }
 }

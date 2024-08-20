@@ -4,22 +4,63 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper\UnitTest;
 
+use DateTime;
+use DateTimeImmutable;
 use EvgenijVY\SimpleMapper\Mapper;
-use EvgenijVY\SimpleMapper\UnitTest\Dto\DestinationDto;
-use EvgenijVY\SimpleMapper\UnitTest\Dto\SourceDto;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination1;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination2;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination3;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Source1;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Source2;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Source3;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 class BasicTest extends TestCase
 {
-    const TEST_STRING = 'test';
+    private Mapper $mapper;
+
+    public function __construct(string $name)
+    {
+        parent::__construct($name);
+
+        $this->mapper = new Mapper();
+    }
 
     #[Test]
-    public function basic(): void
+    #[TestWith(['test'])]
+    public function basic(string $testString): void
     {
         $this->assertEquals(
-            self::TEST_STRING,
-            (new Mapper())->map((new SourceDto())->setName(self::TEST_STRING), DestinationDto::class)->getName()
+            $testString,
+            $this->mapper->map((new Source1())->setName($testString), Destination1::class)->getName()
         );
+    }
+
+    #[Test]
+    #[TestWith(['123456', '2024-01-02'])]
+    public function typeConverting(string $testIntSting, string $testDateString,): void
+    {
+        $destination = $this->mapper->map(
+            (new Source2())->setProp1($testIntSting)->setProp2($testDateString),
+            Destination2::class
+        );
+
+        $this->assertEquals((int)$testIntSting, $destination->getProp1());
+        $this->assertEquals(new DateTimeImmutable($testDateString), $destination->getProp2());
+    }
+
+    #[Test]
+    #[TestWith([475738, new DateTime('2024-06-12')])]
+    public function typeConvertingRevert(int $testInt, DateTime $dateTime): void
+    {
+        $destination = $this->mapper->map(
+            (new Source3())->setProp1($testInt)->setProp2($dateTime),
+            Destination3::class
+        );
+
+        $this->assertEquals((string)$testInt, $destination->getProp1());
+        $this->assertEquals($dateTime->format(\DateTimeInterface::ATOM), $destination->getProp2());
     }
 }
