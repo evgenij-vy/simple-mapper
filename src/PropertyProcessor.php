@@ -8,9 +8,9 @@ use DateTimeInterface;
 use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
 use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
+use EvgenijVY\SimpleMapper\Extractors\ReflectionPropertyExtractor;
 use ReflectionObject;
 use ReflectionProperty;
-use ReflectionException;
 
 class PropertyProcessor
 {
@@ -26,7 +26,7 @@ class PropertyProcessor
                 $reflectionDestinationProperty,
                 $destinationObject,
                 $this->convertValue(
-                    $this->retrieveSourcePropertyData(
+                    (new ReflectionPropertyExtractor)->retrievePropertyData(
                         $reflectionDestinationProperty,
                         $sourceReflection,
                         $sourceObject
@@ -36,27 +36,6 @@ class PropertyProcessor
             );
         } catch (SourcePropertyNotFoundException) {
             return;
-        }
-    }
-
-    /**
-     * @throws SourcePropertyNotFoundException
-     */
-    private function retrieveSourcePropertyData(
-        ReflectionProperty $reflectionDestinationProperty,
-        ReflectionObject   $sourceReflection,
-        object             $sourceObject,
-    ): SourcePropertyDataDto
-    {
-        try {
-            $sourceReflectionProperty = $sourceReflection->getProperty($reflectionDestinationProperty->getName());
-
-            return new SourcePropertyDataDto(
-                $sourceReflectionProperty->getValue($sourceObject),
-                $sourceReflectionProperty
-            );
-        } catch (ReflectionException) {
-            throw new SourcePropertyNotFoundException();
         }
     }
 
