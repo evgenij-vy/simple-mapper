@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EvgenijVY\SimpleMapper\Extractors;
+namespace EvgenijVY\SimpleMapper\Extractor;
 
 use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
