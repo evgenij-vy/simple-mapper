@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper\Converters;
 
-use DateTimeInterface;
 use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use ReflectionProperty;
 
