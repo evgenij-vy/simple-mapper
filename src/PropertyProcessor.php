@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace EvgenijVY\SimpleMapper;
 
 use DateTimeInterface;
-use EvgenijVY\SimpleMapper\Converters\DateTimeInterfaceToNumberConverter;
-use EvgenijVY\SimpleMapper\Converters\DateTimeInterfaceToStringConverter;
-use EvgenijVY\SimpleMapper\Converters\NoConverter;
-use EvgenijVY\SimpleMapper\Converters\NumericToDateTimeInterfaceConverter;
-use EvgenijVY\SimpleMapper\Converters\StringToDateTimeInterfaceConverter;
-use EvgenijVY\SimpleMapper\Converters\ValueConverterInterface;
+use EvgenijVY\SimpleMapper\Converter\DateTimeInterfaceToNumberConverter;
+use EvgenijVY\SimpleMapper\Converter\DateTimeInterfaceToStringConverter;
+use EvgenijVY\SimpleMapper\Converter\NoConverter;
+use EvgenijVY\SimpleMapper\Converter\NumericToDateTimeInterfaceConverter;
+use EvgenijVY\SimpleMapper\Converter\StringToDateTimeInterfaceConverter;
+use EvgenijVY\SimpleMapper\Converter\ValueConverterInterface;
 use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
 use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
-use EvgenijVY\SimpleMapper\Extractors\PropertyExtractorInterface;
-use EvgenijVY\SimpleMapper\Extractors\ReflectionPropertyExtractor;
+use EvgenijVY\SimpleMapper\Extractor\PropertyExtractorInterface;
+use EvgenijVY\SimpleMapper\Extractor\ReflectionPropertyExtractor;
 use ReflectionObject;
 use ReflectionProperty;
 

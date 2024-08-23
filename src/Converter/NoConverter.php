@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace EvgenijVY\SimpleMapper\Converters;
+namespace EvgenijVY\SimpleMapper\Converter;
 
-use DateTimeInterface;
 use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use ReflectionProperty;
 
-class DateTimeInterfaceToStringConverter implements ValueConverterInterface
+class NoConverter implements ValueConverterInterface
 {
+
     public function convertValue(
         SourcePropertyDataDto $sourcePropertyDataDto,
         ReflectionProperty $reflectionDestinationProperty
     ): mixed
     {
-        return $sourcePropertyDataDto->getValue()->format(DateTimeInterface::ATOM);
+        return $sourcePropertyDataDto->getValue();
     }
 }
