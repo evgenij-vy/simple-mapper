@@ -5,15 +5,25 @@ declare(strict_types=1);
 namespace EvgenijVY\SimpleMapper;
 
 use DateTimeInterface;
+use EvgenijVY\SimpleMapper\Converters\DateTimeInterfaceToNumberConverter;
+use EvgenijVY\SimpleMapper\Converters\DateTimeInterfaceToStringConverter;
+use EvgenijVY\SimpleMapper\Converters\NoConverter;
+use EvgenijVY\SimpleMapper\Converters\NumericToDateTimeInterfaceConverter;
+use EvgenijVY\SimpleMapper\Converters\StringToDateTimeInterfaceConverter;
+use EvgenijVY\SimpleMapper\Converters\ValueConverterInterface;
 use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
 use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
+use EvgenijVY\SimpleMapper\Extractors\PropertyExtractorInterface;
 use EvgenijVY\SimpleMapper\Extractors\ReflectionPropertyExtractor;
 use ReflectionObject;
 use ReflectionProperty;
 
 class PropertyProcessor
 {
+    /**
+     * @throws UnsupportedConversionTypeException
+     */
     public function process(
         ReflectionProperty $reflectionDestinationProperty,
         ReflectionObject   $sourceReflection,
@@ -26,7 +36,7 @@ class PropertyProcessor
                 $reflectionDestinationProperty,
                 $destinationObject,
                 $this->convertValue(
-                    (new ReflectionPropertyExtractor)->retrievePropertyData(
+                    $this->getPropertyExtractor()->retrievePropertyData(
                         $reflectionDestinationProperty,
                         $sourceReflection,
                         $sourceObject
@@ -39,32 +49,51 @@ class PropertyProcessor
         }
     }
 
+    private function getPropertyExtractor(): PropertyExtractorInterface
+    {
+        return new ReflectionPropertyExtractor();
+    }
+
+    /**
+     * @throws UnsupportedConversionTypeException
+     */
+    private function getValueConverter(string $sourceTypeName, string $destinationTypeName): ValueConverterInterface
+    {
+        if ($sourceTypeName !== $destinationTypeName) {
+            if (is_a($sourceTypeName, DateTimeInterface::class, true)) {
+                return match ($destinationTypeName) {
+                    'string' => new DateTimeInterfaceToStringConverter(),
+                    'integer', 'float' => new DateTimeInterfaceToNumberConverter(),
+                    default => throw new UnsupportedConversionTypeException()
+                };
+            }
+
+            if (is_a($destinationTypeName, DateTimeInterface::class, true)) {
+                return match ($sourceTypeName) {
+                    'string' => new StringToDateTimeInterfaceConverter(),
+                    'integer', 'float' => new NumericToDateTimeInterfaceConverter(),
+                    default => throw new UnsupportedConversionTypeException()
+                };
+            }
+        }
+
+        return new NoConverter();
+    }
+
+    /**
+     * @throws UnsupportedConversionTypeException
+     */
     private function convertValue(
         SourcePropertyDataDto $sourcePropertyDataDto,
         ReflectionProperty $reflectionDestinationProperty
     ): mixed
     {
-        $destinationType = $reflectionDestinationProperty->getType();
-        $sourceType = $sourcePropertyDataDto->getProperty()->getType();
-
-        if ($destinationType->getName() !== $sourceType->getName()) {
-            if (is_a($destinationType->getName(), DateTimeInterface::class, true)) {
-                $destinationTypeName = $destinationType->getName();
-                return match ($sourceType->getName()) {
-                    'string' => new $destinationTypeName($sourcePropertyDataDto->getValue()),
-                    'int' => (new $destinationTypeName())->setTimestamp($sourcePropertyDataDto->getValue()),
-                    default => throw new UnsupportedConversionTypeException()
-                };
-            }
-            if (is_a($sourceType->getName(), DateTimeInterface::class, true)) {
-                return match ($destinationType->getName()) {
-                    'string' => $sourcePropertyDataDto->getValue()->format(DateTimeInterface::ATOM),
-                    'int' => $sourcePropertyDataDto->getValue()->getTimestamp(),
-                };
-            }
-        }
-
-        return $sourcePropertyDataDto->getValue();
+        return $this
+            ->getValueConverter(
+                $sourcePropertyDataDto->getProperty()->getType()->getName(),
+                $reflectionDestinationProperty->getType()->getName()
+            )
+            ->convertValue($sourcePropertyDataDto, $reflectionDestinationProperty);
     }
 
     private function setValueToDestinationObject(
