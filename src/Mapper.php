@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper;
 
+use EvgenijVY\SimpleMapper\Dto\PropertyMappingRule;
 use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use ReflectionClass;
 use ReflectionException;
@@ -37,5 +38,13 @@ class Mapper
         }
 
         return $destinationObject;
+    }
+
+    /**
+     * @return array<string, PropertyMappingRule>
+     */
+    private function findMappingRulesFromAttribute(ReflectionClass $destinationReflectionClass, ReflectionObject $sourceData): array
+    {
+        return [];
     }
 }
