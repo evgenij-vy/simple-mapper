@@ -8,7 +8,7 @@ use Attribute;
 use EvgenijVY\SimpleMapper\Dto\PropertyMappingRule;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class MapFrom
+class MapFrom implements MappingAttributeInterface
 {
     /**
      * @param class-string $sourceClassName

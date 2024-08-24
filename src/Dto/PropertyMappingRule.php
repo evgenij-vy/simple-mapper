@@ -13,15 +13,14 @@ use EvgenijVY\SimpleMapper\Setter\ValueSetterInterface;
 class PropertyMappingRule
 {
     public function __construct(
-        private readonly ?string $destinationPropertyName = null,
+        private readonly string $destinationPropertyName,
         private readonly PropertyExtractorInterface $propertyExtractor = new ReflectionPropertyExtractor(),
         private readonly ?ValueConverterInterface   $valueConverter = null,
         private readonly ValueSetterInterface       $valueSetter = new ReflectionSetter(),
-        private readonly bool $ignore = false,
     ) {
     }
 
-    public function getDestinationPropertyName(): ?string
+    public function getDestinationPropertyName(): string
     {
         return $this->destinationPropertyName;
     }
@@ -39,10 +38,5 @@ class PropertyMappingRule
     public function getValueSetter(): ValueSetterInterface
     {
         return $this->valueSetter;
-    }
-
-    public function isIgnore(): bool
-    {
-        return $this->ignore;
     }
 }

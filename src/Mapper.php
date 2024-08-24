@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper;
 
-use EvgenijVY\SimpleMapper\Dto\PropertyMappingRule;
+use EvgenijVY\SimpleMapper\Exception\MultipleMappingException;
 use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use ReflectionClass;
 use ReflectionException;
@@ -21,30 +21,29 @@ class Mapper
 
     /**
      * @template T
-     * @param object $source
      * @param class-string<T> $destination
      * @return T
      * @throws ReflectionException
      * @throws UnsupportedConversionTypeException
+     * @throws MultipleMappingException
      */
     public function map(object $source, string $destination): object
     {
         $destinationReflectionClass = new ReflectionClass($destination);
         $sourceData = new ReflectionObject($source);
         $destinationObject = $destinationReflectionClass->newInstanceWithoutConstructor();
+        $propertyMappingRuleProvider = new PropertyMappingRuleProvider($destinationReflectionClass, $sourceData);
 
         foreach ($destinationReflectionClass->getProperties() as $destinationProperty) {
-            $this->propertyProcessor->process($destinationProperty, $sourceData, $source, $destinationObject);
+            $this->propertyProcessor->process(
+                $destinationProperty,
+                $sourceData,
+                $source,
+                $destinationObject,
+                $propertyMappingRuleProvider->getPropertyRule($destinationProperty->getName())
+            );
         }
 
         return $destinationObject;
-    }
-
-    /**
-     * @return array<string, PropertyMappingRule>
-     */
-    private function findMappingRulesFromAttribute(ReflectionClass $destinationReflectionClass, ReflectionObject $sourceData): array
-    {
-        return [];
     }
 }

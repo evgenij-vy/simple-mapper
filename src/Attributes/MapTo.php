@@ -8,22 +8,22 @@ use Attribute;
 use EvgenijVY\SimpleMapper\Dto\PropertyMappingRule;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-class MapTo
+class MapTo implements MappingAttributeInterface
 {
     /**
-     * @param class-string $targetClassName
+     * @param class-string $destinationClassName
      * @param PropertyMappingRule[] $propertyMappingRules
      */
     public function __construct(
-        private readonly string $targetClassName,
+        private readonly string $destinationClassName,
         private readonly array  $propertyMappingRules = [],
     )
     {
     }
 
-    public function getTargetClassName(): string
+    public function getDestinationClassName(): string
     {
-        return $this->targetClassName;
+        return $this->destinationClassName;
     }
 
     public function getPropertyMappingRules(): array
