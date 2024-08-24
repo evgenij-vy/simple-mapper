@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper;
 
+use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
@@ -23,6 +24,7 @@ class Mapper
      * @param class-string<T> $destination
      * @return T
      * @throws ReflectionException
+     * @throws UnsupportedConversionTypeException
      */
     public function map(object $source, string $destination): object
     {

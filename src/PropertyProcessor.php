@@ -16,6 +16,8 @@ use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
 use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use EvgenijVY\SimpleMapper\Extractor\PropertyExtractorInterface;
 use EvgenijVY\SimpleMapper\Extractor\ReflectionPropertyExtractor;
+use EvgenijVY\SimpleMapper\Setter\ReflectionSetter;
+use EvgenijVY\SimpleMapper\Setter\ValueSetterInterface;
 use ReflectionObject;
 use ReflectionProperty;
 
@@ -32,7 +34,7 @@ class PropertyProcessor
     ): void
     {
         try {
-            $this->setValueToDestinationObject(
+            $this->getValueSetter()->setValue(
                 $reflectionDestinationProperty,
                 $destinationObject,
                 $this->convertValue(
@@ -47,6 +49,22 @@ class PropertyProcessor
         } catch (SourcePropertyNotFoundException) {
             return;
         }
+    }
+
+    /**
+     * @throws UnsupportedConversionTypeException
+     */
+    private function convertValue(
+        SourcePropertyDataDto $sourcePropertyDataDto,
+        ReflectionProperty $reflectionDestinationProperty
+    ): mixed
+    {
+        return $this
+            ->getValueConverter(
+                $sourcePropertyDataDto->getProperty()->getType()->getName(),
+                $reflectionDestinationProperty->getType()->getName()
+            )
+            ->convertValue($sourcePropertyDataDto, $reflectionDestinationProperty);
     }
 
     private function getPropertyExtractor(): PropertyExtractorInterface
@@ -80,28 +98,8 @@ class PropertyProcessor
         return new NoConverter();
     }
 
-    /**
-     * @throws UnsupportedConversionTypeException
-     */
-    private function convertValue(
-        SourcePropertyDataDto $sourcePropertyDataDto,
-        ReflectionProperty $reflectionDestinationProperty
-    ): mixed
+    private function getValueSetter(): ValueSetterInterface
     {
-        return $this
-            ->getValueConverter(
-                $sourcePropertyDataDto->getProperty()->getType()->getName(),
-                $reflectionDestinationProperty->getType()->getName()
-            )
-            ->convertValue($sourcePropertyDataDto, $reflectionDestinationProperty);
-    }
-
-    private function setValueToDestinationObject(
-        ReflectionProperty $reflectionDestinationProperty,
-        object             $destinationObject,
-        mixed              $value
-    ): void
-    {
-        $reflectionDestinationProperty->setValue($destinationObject, $value);
+        return new ReflectionSetter();
     }
 }
