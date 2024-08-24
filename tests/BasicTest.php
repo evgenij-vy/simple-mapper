@@ -6,13 +6,16 @@ namespace EvgenijVY\SimpleMapper\UnitTest;
 
 use DateTime;
 use DateTimeImmutable;
+use DateTimeInterface;
 use EvgenijVY\SimpleMapper\Mapper;
 use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination1;
 use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination2;
 use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination3;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Destination4;
 use EvgenijVY\SimpleMapper\UnitTest\Dto\Source1;
 use EvgenijVY\SimpleMapper\UnitTest\Dto\Source2;
 use EvgenijVY\SimpleMapper\UnitTest\Dto\Source3;
+use EvgenijVY\SimpleMapper\UnitTest\Dto\Source4;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -40,7 +43,7 @@ class BasicTest extends TestCase
 
     #[Test]
     #[TestWith(['123456', '2024-01-02'])]
-    public function typeConverting(string $testIntSting, string $testDateString,): void
+    public function typeConverting(string $testIntSting, string $testDateString): void
     {
         $destination = $this->mapper->map(
             (new Source2())->setProp1($testIntSting)->setProp2($testDateString),
@@ -61,6 +64,15 @@ class BasicTest extends TestCase
         );
 
         $this->assertEquals((string)$testInt, $destination->getProp1());
-        $this->assertEquals($dateTime->format(\DateTimeInterface::ATOM), $destination->getProp2());
+        $this->assertEquals($dateTime->format(DateTimeInterface::ATOM), $destination->getProp2());
+    }
+
+    #[Test]
+    public function attributeTest(): void
+    {
+        $this->assertEquals(
+            (new DateTimeImmutable())->setTime(0, 0)->format(DateTimeInterface::ATOM),
+            $this->mapper->map(new Source4(), Destination4::class)->getDate()
+        );
     }
 }
