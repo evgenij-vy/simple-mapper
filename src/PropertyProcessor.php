@@ -43,7 +43,7 @@ class PropertyProcessor
                 ($propertyMappingRule->getValueConverter() ?? $this->getDefaultValueConverter(
                     $sourcePropertyDataDto->getProperty()->getType()->getName(),
                     $reflectionDestinationProperty->getType()->getName()
-                ))->convertValue($sourcePropertyDataDto, $reflectionDestinationProperty)
+                ))->convertValue($sourcePropertyDataDto->getValue(), $reflectionDestinationProperty)
             );
         } catch (SourcePropertyNotFoundException) {
             return;
