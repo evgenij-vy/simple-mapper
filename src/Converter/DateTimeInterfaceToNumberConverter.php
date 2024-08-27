@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper\Converter;
 
-use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
+use DateTimeInterface;
+use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use ReflectionProperty;
 
 class DateTimeInterfaceToNumberConverter implements ValueConverterInterface
 {
-    public function convertValue(
-        SourcePropertyDataDto $sourcePropertyDataDto,
-        ReflectionProperty $reflectionDestinationProperty
-    ): mixed
+    /**
+     * @throws UnsupportedConversionTypeException
+     */
+    public function convertValue(mixed $sourceValue, ReflectionProperty $reflectionDestinationProperty): int
     {
-        return $sourcePropertyDataDto->getValue()->getTimestamp();
+        if (!$sourceValue instanceof DateTimeInterface) {
+            throw new UnsupportedConversionTypeException();
+        }
+
+        return $sourceValue->getTimestamp();
     }
 }

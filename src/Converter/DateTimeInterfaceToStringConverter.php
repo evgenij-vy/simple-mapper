@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace EvgenijVY\SimpleMapper\Converter;
 
 use DateTimeInterface;
-use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
+use EvgenijVY\SimpleMapper\Exception\UnsupportedConversionTypeException;
 use ReflectionProperty;
 
 class DateTimeInterfaceToStringConverter implements ValueConverterInterface
 {
-    public function convertValue(
-        SourcePropertyDataDto $sourcePropertyDataDto,
-        ReflectionProperty $reflectionDestinationProperty
-    ): mixed
+    /**
+     * @throws UnsupportedConversionTypeException
+     */
+    public function convertValue(mixed $sourceValue, ReflectionProperty $reflectionDestinationProperty): string
     {
-        return $sourcePropertyDataDto->getValue()->format(DateTimeInterface::ATOM);
+        if (!$sourceValue instanceof DateTimeInterface) {
+            throw new UnsupportedConversionTypeException();
+        }
+
+        return $sourceValue->format(DateTimeInterface::ATOM);
     }
 }
