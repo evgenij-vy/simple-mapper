@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EvgenijVY\SimpleMapper\Extractor;
 
-use EvgenijVY\SimpleMapper\Dto\SourcePropertyDataDto;
 use EvgenijVY\SimpleMapper\Exception\SourcePropertyNotFoundException;
 use ReflectionException;
 use ReflectionObject;
@@ -16,15 +15,10 @@ class ReflectionPropertyExtractor implements PropertyExtractorInterface
         ReflectionProperty $reflectionDestinationProperty,
         ReflectionObject $sourceReflection,
         object $sourceObject
-    ): SourcePropertyDataDto
+    ): mixed
     {
         try {
-            $sourceReflectionProperty = $sourceReflection->getProperty($reflectionDestinationProperty->getName());
-
-            return new SourcePropertyDataDto(
-                $sourceReflectionProperty->getValue($sourceObject),
-                $sourceReflectionProperty
-            );
+            return $sourceReflection->getProperty($reflectionDestinationProperty->getName())->getValue($sourceObject);
         } catch (ReflectionException) {
             throw new SourcePropertyNotFoundException();
         }
